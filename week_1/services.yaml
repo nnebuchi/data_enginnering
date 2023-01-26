@@ -1,0 +1,90 @@
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    restart: always
+
+# run postgres 13 image
+winpty docker run -it \
+  -e POSTGRES_USER="nnesco" \
+  -e POSTGRES_PASSWORD="nnesco100" \
+  -e POSTGRES_DB="ny_taxi" \
+  -v //c/Users/pc/Documents/dev/data_eng/week_1/ny_taxi_postgres_data://var/lib/postgresql/data \
+  -p 5433:5432\
+  --network pg-network \
+  --name pg-database \
+  postgres:13
+
+
+# run pgAdmin 4 image
+
+winpty docker run -it \ 
+  -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" \
+  -e PGADMIN_DEFAULT_PASSWORD="nnesco100" \
+  -p 8085:80 \
+  --network pg-network \
+  dpage/pgadmin4
+
+winpty docker run -e PGADMIN_DEFAULT_EMAIL="admin@admin.com"   -e PGADMIN_DEFAULT_PASSWORD="nnesco100"   -p 8085:80   --network pg-network   dpage/pgadmin4
+
+
+
+docker network create pg-network
+
+
+docker run -it  -e PGADMIN_DEFAULT_EMAIL="admin@admin.com"   -e PGADMIN_DEFAULT_PASSWORD="nnesco100"   -p 8085:80   --network pg-network   dpage/pgadmin4
+
+file_path='http://172.22.144.1/taxi_data/yellow_tripdata_2021-01.csv'
+python injest_data.py \
+  --user=nnesco \
+  --password=nnesco100 \
+  --host=localhost \
+  --port=5433 \
+  --db=ny_taxi \
+  --table_name=ny_taxi \
+  --url=${file_path}
+
+winpty docker build -t taxi_ingest:v002 .
+
+file_path='http://172.22.144.1/taxi_data/yellow_tripdata_2021-01.csv'
+winpty docker run -it \
+  --network=pg-network \
+  taxi_ingest:v002 \
+  --user=nnesco \
+  --password=nnesco100 \
+  --host=pg-database \
+  --port=5435 \
+  --db=ny_taxi \
+  --table_name=ny_taxi \
+  --url=${file_path}
+
+
+
+
+
+
+
+
+
+
+
+
+
+  docker run -it \
+  -e POSTGRES_USER="nnesco" \
+  -e POSTGRES_PASSWORD="nnesco100" \
+  -e POSTGRES_DB="ny_taxi" \
+  -v //c/Users/pc/Documents/dev/data_eng/week_1/ny_taxi_postgres_data://var/lib/postgresql/data \
+  -p 5433:5432\
+  --network pg-network \
+  --name pg-database \
+  postgres:13

@@ -1,0 +1,36 @@
+winpty docker run -it \
+  -e POSTGRES_USER="nnesco" \
+  -e POSTGRES_PASSWORD="nnesco100" \
+  -e POSTGRES_DB="ny_taxi" \
+  -v //c/Users/pc/Documents/dev/data_eng/week_1/homework/volume://var/lib/postgresql/data \
+  -p 5433:5432\
+  --network homework-network \
+  --name homework-database \
+  postgres:13
+
+
+  winpty docker run -it -e PGADMIN_DEFAULT_EMAIL="admin@admin.com"   -e PGADMIN_DEFAULT_PASSWORD="nnesco100"   -p 8086:80   --network homework-network   dpage/pgadmin4
+
+
+file_path='http://localhost/taxi_data/homework_1/green_tripdata_2019-01.csv'
+python injest_data.py \
+  --user=nnesco \
+  --password=nnesco100 \
+  --host=localhost \
+  --port=5433 \
+  --db=ny_taxi \
+  --table_name=ny_taxi \
+  --url=${file_path}
+
+
+
+
+file_path='http://localhost/taxi_data/homework_1/taxi_zone_lookup.csv'
+python related_data.py \
+  --user=nnesco \
+  --password=nnesco100 \
+  --host=localhost \
+  --port=5433 \
+  --db=ny_taxi \
+  --table_name=ny_taxi_zone \
+  --url=${file_path}

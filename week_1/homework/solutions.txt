@@ -1,0 +1,21 @@
+1. docker build --help
+
+2. pip list
+
+3. select count(1) from ny_taxi where lpep_pickup_datetime::date = date '2019-01-15' and lpep_dropoff_datetime::date = date '2019-01-15';
+
+4. There are two possible ways .
+The simlest is SELECT * FROM ny_taxi
+WHERE trip_distance = (select max(trip_distance)from ny_taxi)
+
+that gave the right answer
+
+but if there was no column for trip distance, another option could be:
+
+SELECT * FROM ny_taxi
+WHERE (lpep_dropoff_datetime - lpep_pickup_datetime) = (select max(lpep_dropoff_datetime - lpep_pickup_datetime)from ny_taxi)
+
+however, this gave the wrong answer
+
+5. select count(1) from ny_taxi where lpep_pickup_datetime::date = date '2019-01-01' and passenger_count = 2;
+select count(1) from ny_taxi where lpep_pickup_datetime::date = date '2019-01-01' and passenger_count = 3;
